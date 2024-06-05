@@ -1,6 +1,27 @@
 @failure_api_HostAddress = http://localhost:5082
 
-GET {{failure_api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{failure_api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "Password123!",
+  "idGoogle": "google-id",
+  "description": "This is a test user.",
+  "link1": "http://example.com/link1",
+  "link2": "http://example.com/link2",
+  "link3": "http://example.com/link3"
+}
+
+###
+
+POST {{failure_api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "Password123!",
+  "rememberMe": true
+}
 
 ###
