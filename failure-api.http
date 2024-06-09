@@ -24,12 +24,4 @@ Content-Type: application/json
   "rememberMe": true
 }
 
-### Get the token
-{% 
-  client.test("Token is received", function() {
-    var response = JSON.parse(responseBody);
-    client.global.set("jwt_token", response.token); // Ajuste conforme o formato da sua resposta
-  });
-%}
-
 ###
