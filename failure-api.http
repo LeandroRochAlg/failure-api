@@ -1,5 +1,6 @@
 @failure_api_HostAddress = http://localhost:5082
 
+### Register a new user
 POST {{failure_api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
@@ -13,8 +14,7 @@ Content-Type: application/json
   "link3": "http://example.com/link3"
 }
 
-###
-
+### Login
 POST {{failure_api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
@@ -23,5 +23,13 @@ Content-Type: application/json
   "password": "Password123!",
   "rememberMe": true
 }
+
+### Get the token
+{% 
+  client.test("Token is received", function() {
+    var response = JSON.parse(responseBody);
+    client.global.set("jwt_token", response.token); // Ajuste conforme o formato da sua resposta
+  });
+%}
 
 ###
