@@ -5,12 +5,10 @@ POST {{failure_api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "username": "testuser2",
   "password": "Password123!",
-  "idGoogle": "google-id",
-  "description": "This is a test user.",
+  "idGoogle": "google-id2",
   "link1": "http://example.com/link1",
-  "link2": "http://example.com/link2",
   "link3": "http://example.com/link3"
 }
 
@@ -19,7 +17,7 @@ POST {{failure_api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "username": "testuser2",
   "password": "Password123!",
   "rememberMe": true
 }
