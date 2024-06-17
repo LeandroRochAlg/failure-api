@@ -5,11 +5,9 @@ POST {{failure_api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "testuser2",
-  "password": "Password123!",
-  "idGoogle": "google-id2",
-  "link1": "http://example.com/link1",
-  "link3": "http://example.com/link3"
+  "username": "bottas77",
+  "password": "Bottas77!",
+  "idGoogle": "google-id4"
 }
 
 ### Login
