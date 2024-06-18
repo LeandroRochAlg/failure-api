@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using failure_api.Data;
 using failure_api.Models;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,17 +32,22 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+Env.Load();
+
+var originUrl = Environment.GetEnvironmentVariable("ORIGIN_URL") ?? "http://localhost:3000";
+
 builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .AllowAnyOrigin()
+            .WithOrigins(originUrl)
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
 
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowSpecificOrigins");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
