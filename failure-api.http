@@ -20,4 +20,5 @@ Content-Type: application/json
   "rememberMe": true
 }
 
-###
+### Logout
+POST {{failure_api_HostAddress}}/api/auth/logout
