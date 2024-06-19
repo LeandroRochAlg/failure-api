@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using failure_api.Models;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace failure_api.Controllers
 {    
@@ -31,14 +33,44 @@ namespace failure_api.Controllers
                 Link3 = model.Link3
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            try {
+                var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
-            {
-                return Ok();
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+
+                if (result.Errors != null)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        if (error.Code == "DuplicateUserName")          // If a user with the same username already exists
+                        {
+                            return Conflict("User with the same username already exists.");
+                        } else if (error.Description == "DuplicateIdGoogle")   // If a user with the same Google ID already exists
+                        {
+                            return Conflict("This Google account is already linked to another user.");
+                        } else {
+                            return BadRequest(error.Description);       // Returns the text description of the error
+                        }
+                    }
+                }
+            } catch (DbUpdateException ex) {
+                // Check if the inner exception is a PostgresException
+                if (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+                {
+                    if (pgEx.ConstraintName == "IX_Users_IdGoogle")
+                    {
+                        return Conflict("This Google account is already linked to another user.");
+                    }
+                }
+
+                // Re-throw the exception if it's not handled
+                throw;
             }
 
-            return BadRequest(result.Errors);
+            return BadRequest();
         }
 
         [HttpPost("login")]
@@ -51,7 +83,17 @@ namespace failure_api.Controllers
                 return Ok();
             }
 
-            return Unauthorized();
+            if (result.IsLockedOut)
+            {
+                return StatusCode(423, "User is locked out.");
+            }
+
+            if (result.IsNotAllowed)
+            {
+                return StatusCode(403, "User is not allowed to sign in.");
+            }
+
+            return Unauthorized("Invalid login attempt.");
         }
 
         [HttpPost("logout")]
