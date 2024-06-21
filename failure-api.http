@@ -22,3 +22,6 @@ Content-Type: application/json
 
 ### Logout
 POST {{failure_api_HostAddress}}/api/auth/logout
+
+### Check if user is authenticated
+GET {{failure_api_HostAddress}}/api/secure/check
