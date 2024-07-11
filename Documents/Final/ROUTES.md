@@ -1,7 +1,8 @@
 ### User Routes
 1. **User Registration and Login**
-   - `POST /api/auth/register` - Registers a new user using Google OAuth and a unique username.
-   - `POST /api/auth/login` - Logs in a user using Google OAuth.
+   - `POST /api/auth/register` - Registers a new user using Google OAuth, a unique username and a password and returns a cookie.
+   - `POST /api/auth/login` - Logs in a user using username and password.
+   - `POST /api/auth/logout` - Logout from the site using the given cookie.
 
 2. **User Profile Management**
    - `GET /api/users/{id}` - Retrieves user profile information by user ID.
