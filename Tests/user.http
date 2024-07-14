@@ -22,3 +22,21 @@ PATCH {{failure_api_HostAddress}}/api/user/me/active
 
 ### Get user by username
 GET {{failure_api_HostAddress}}/api/user/bottas77
+
+### Update user's password
+PUT {{failure_api_HostAddress}}/api/user/me/password
+Content-Type: application/json
+
+{
+    "currentPassword": "Password1234!",
+    "newPassword": "Password123!",
+    "logout": true
+}
+
+### Update user's username
+PUT {{failure_api_HostAddress}}/api/user/me/username
+Content-Type: application/json
+
+{
+    "newUsername": "testuser2"
+}
