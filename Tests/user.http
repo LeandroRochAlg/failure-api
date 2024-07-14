@@ -1,0 +1,24 @@
+@failure_api_HostAddress = http://localhost:5082
+
+### Get me
+GET {{failure_api_HostAddress}}/api/user/me
+
+### Put me
+PUT {{failure_api_HostAddress}}/api/user/me
+Content-Type: application/json
+
+{
+    "description": "I am a test user",
+    "link1": "https://www.google.com",
+    "link2": "https://www.bing.com",
+    "link3": "https://www.yahoo.com"
+}
+
+### Patch private
+PATCH {{failure_api_HostAddress}}/api/user/me/private
+
+### Patch active
+PATCH {{failure_api_HostAddress}}/api/user/me/active
+
+### Get user by username
+GET {{failure_api_HostAddress}}/api/user/bottas77
