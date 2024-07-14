@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using failure_api.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace failure_api.Controllers
 {
@@ -116,7 +117,63 @@ namespace failure_api.Controllers
             if (!user.Active)
             {
                 await _signInManager.SignOutAsync();
+                return Ok("Logged out.");
             }
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [Authorize]
+        [HttpPut("me/password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                if (model.Logout)
+                {
+                    await _signInManager.SignOutAsync();
+                    return Ok("Logged out.");
+                }
+
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [Authorize]
+        [HttpPut("me/username")]
+        public async Task<IActionResult> ChangeUsername([FromBody] ChangeUsernameModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var newUsername = model.NewUsername;
+
+            var result = await _userManager.SetUserNameAsync(user, newUsername);
 
             if (result.Succeeded)
             {
@@ -150,5 +207,23 @@ namespace failure_api.Controllers
                 user.Link3
             });
         }
+    }
+
+    public class ChangePasswordModel
+    {
+        [Required]
+        public string CurrentPassword { get; set; } = "";
+
+        [Required]
+        public string NewPassword { get; set; } = "";
+
+        [Required]
+        public bool Logout { get; set; } = false;
+    }
+
+    public class ChangeUsernameModel
+    {
+        [Required]
+        public string NewUsername { get; set; } = "";
     }
 }
