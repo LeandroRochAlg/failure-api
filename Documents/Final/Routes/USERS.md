@@ -1,3 +1,5 @@
+Here's the updated documentation with the routes for changing the username and password included:
+
 ### User Profile Management
 
 #### `GET /api/users/{username}`
@@ -92,15 +94,69 @@ PATCH /api/users/me/active
 200 OK
 ```
 
+#### `PUT /api/users/me/username`
+- **Description:** Changes the username of the authenticated user. Requires authentication.
+- **Request Body:**
+  - `newUsername` (string, required): The new username to be set.
+- **Response:**
+  - **200 OK:** Username changed successfully.
+  - **404 Not Found:** User not found or inactive.
+  - **400 Bad Request:** Validation errors or update failed.
+
+**Example:**
+```http
+PUT /api/users/me/username
+Content-Type: application/json
+
+{
+  "newUsername": "newUsername123"
+}
+```
+
+**Response:**
+```http
+200 OK
+```
+
+#### `PUT /api/users/me/password`
+- **Description:** Changes the password of the authenticated user. Requires authentication.
+- **Request Body:**
+  - `currentPassword` (string, required): The user's current password.
+  - `newPassword` (string, required): The new password to be set.
+  - `logout` (boolean, optional): Indicates if the user should be logged out after the password change.
+- **Response:**
+  - **200 OK:** Password changed successfully. (User logged out if specified)
+  - **404 Not Found:** User not found or inactive.
+  - **400 Bad Request:** Validation errors or update failed.
+
+**Example:**
+```http
+PUT /api/users/me/password
+Content-Type: application/json
+
+{
+  "currentPassword": "OldPassword123!",
+  "newPassword": "NewPassword123!",
+  "logout": true
+}
+```
+
+**Response:**
+```http
+200 OK
+```
+
 ### Summary of Endpoints
 
-| HTTP Method | Route                     | Description                            |
-|-------------|---------------------------|----------------------------------------|
-| `GET`       | `/api/users/{username}`   | Retrieves user profile by username     |
-| `PUT`       | `/api/users/me`           | Updates user profile information       |
-| `PATCH`     | `/api/users/me/privacy`   | Toggles privacy settings               |
-| `PATCH`     | `/api/users/me/active`    | Toggles active status                  |
+| HTTP Method | Route                     | Description                             |
+|-------------|---------------------------|-----------------------------------------|
+| `GET`       | `/api/users/{username}`   | Retrieves user profile by username      |
+| `PUT`       | `/api/users/me`           | Updates user profile information        |
+| `PATCH`     | `/api/users/me/privacy`   | Toggles privacy settings                |
+| `PATCH`     | `/api/users/me/active`    | Toggles active status                   |
+| `PUT`       | `/api/users/me/username`  | Changes the username of the user        |
+| `PUT`       | `/api/users/me/password`  | Changes the password of the user        |
 
 ### Additional Notes
-- **Authentication:** Routes requiring authentication (`PUT`, `PATCH /privacy`, `PATCH /active`) can only be accessed by authenticated users.
+- **Authentication:** Routes requiring authentication (`PUT`, `PATCH /privacy`, `PATCH /active`, `PUT /username`, `PUT /password`) can only be accessed by authenticated users.
 - **Input Validation:** Ensure proper validation of input data, especially for update endpoints (`PUT`).
