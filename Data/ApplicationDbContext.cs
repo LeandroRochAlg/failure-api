@@ -52,6 +52,22 @@ namespace failure_api.Data
             {
                 entity.ToTable("UserTokens");
             });
+
+            builder.Entity<Follow>(entity =>
+            {
+                entity.ToTable("Follows");
+                entity.HasIndex(e => new { e.IdFollowed, e.IdFollowing }).IsUnique();
+
+                entity.HasOne(e => e.Followed)
+                    .WithMany()
+                    .HasForeignKey(e => e.IdFollowed)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Following)
+                    .WithMany()
+                    .HasForeignKey(e => e.IdFollowing)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }
