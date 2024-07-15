@@ -24,9 +24,9 @@ namespace failure_api.Models
         public bool Active { get; set; } = true;
 
         [ForeignKey("IdFollowed")]
-        public required ApplicationUser Followed { get; set; }
+        public ApplicationUser? Followed { get; set; }
 
         [ForeignKey("IdFollowing")]
-        public required ApplicationUser Following { get; set; }
+        public ApplicationUser? Following { get; set; }
     }
 }
