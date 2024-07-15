@@ -23,3 +23,6 @@ GET {{failure_api_HostAddress}}/api/follow/followers
 
 ### Get following
 GET {{failure_api_HostAddress}}/api/follow/following
+
+### Get follow requests
+GET {{failure_api_HostAddress}}/api/follow/requests

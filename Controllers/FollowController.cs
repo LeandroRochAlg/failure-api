@@ -260,5 +260,24 @@ namespace failure_api.Controllers
 
             return Ok(followingUsernames);
         }
+
+        [Authorize]
+        [HttpGet("requests")]
+        public async Task<IActionResult> GetRequests()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var requests = _context.Follows.Where(f => f.IdFollowed == user.Id && f.Active && !f.Allowed).ToList();
+
+            // Get the usernames of the followers using the Ids
+            var requestsUsernames = requests.Select(f => _context.Users.Where(u => u.Id == f.IdFollowing).FirstOrDefault()?.UserName).ToList();
+
+            return Ok(requestsUsernames);
+        }
     }
 }
