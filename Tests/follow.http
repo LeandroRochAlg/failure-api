@@ -1,0 +1,25 @@
+@failure_api_HostAddress = http://localhost:5082
+
+### Follow a user
+POST {{failure_api_HostAddress}}/api/follow/follow/testuser2
+Content-Type: application/json
+
+### Unfollow a user
+DELETE {{failure_api_HostAddress}}/api/follow/unfollow/bottas77
+Content-Type: application/json
+
+### Allow a follow request
+PATCH {{failure_api_HostAddress}}/api/follow/allow/bottas77
+Content-Type: application/json
+
+### Disallow a follow request
+PATCH {{failure_api_HostAddress}}/api/follow/disallow/bottas77
+
+### Deny a follow request
+PATCH {{failure_api_HostAddress}}/api/follow/deny/bottas77
+
+### Get followers
+GET {{failure_api_HostAddress}}/api/follow/followers
+
+### Get following
+GET {{failure_api_HostAddress}}/api/follow/following
