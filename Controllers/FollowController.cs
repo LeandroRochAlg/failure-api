@@ -224,8 +224,8 @@ namespace failure_api.Controllers
         }
 
         [Authorize]
-        [HttpGet("followers")]
-        public async Task<IActionResult> GetFollowers()
+        [HttpGet("followers/{username}")]
+        public async Task<IActionResult> GetFollowers(string username)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -234,17 +234,29 @@ namespace failure_api.Controllers
                 return NotFound("User not found or inactive.");
             }
 
-            var followers = _context.Follows.Where(f => f.IdFollowed == user.Id && f.Active && f.Allowed).ToList();
+            var userToGet = await _userManager.FindByNameAsync(username);
+
+            if (userToGet == null || !userToGet.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            if (userToGet.Private && !_context.Follows.Where(f => f.IdFollowing == user.Id && f.IdFollowed == userToGet.Id && f.Active && f.Allowed).Any() && user.Id != userToGet.Id)
+            {
+                return BadRequest("User is private.");
+            }
+
+            var followers = _context.Follows.Where(f => f.IdFollowed == userToGet.Id && f.Active && f.Allowed).ToList();
 
             // Get the usernames of the followers using the Ids
-            var followersUsernames = followers.Select(f => _context.Users.Where(u => u.Id == f.IdFollowing).FirstOrDefault()?.UserName).ToList();
+            var followersUsernames = followers.Select(f => _context.Users.Where(u => u.Id == f.IdFollowing).OrderBy(u => f.AllowDate).FirstOrDefault()?.UserName).ToList();
 
             return Ok(followersUsernames);
         }
 
         [Authorize]
-        [HttpGet("following")]
-        public async Task<IActionResult> GetFollowing()
+        [HttpGet("following/{username}")]
+        public async Task<IActionResult> GetFollowing(string username)
         {
             var user = await _userManager.GetUserAsync(User);
 
@@ -253,10 +265,22 @@ namespace failure_api.Controllers
                 return NotFound("User not found or inactive.");
             }
 
-            var following = _context.Follows.Where(f => f.IdFollowing == user.Id && f.Active && f.Allowed).ToList();
+            var userToGet = await _userManager.FindByNameAsync(username);
+
+            if (userToGet == null || !userToGet.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            if (userToGet.Private && !_context.Follows.Where(f => f.IdFollowing == user.Id && f.IdFollowed == userToGet.Id && f.Active && f.Allowed).Any() && user.Id != userToGet.Id)
+            {
+                return BadRequest("User is private.");
+            }
+
+            var following = _context.Follows.Where(f => f.IdFollowing == userToGet.Id && f.Active && f.Allowed).ToList();
 
             // Get the usernames of the following using the Ids
-            var followingUsernames = following.Select(f => _context.Users.Where(u => u.Id == f.IdFollowed).FirstOrDefault()?.UserName).ToList();
+            var followingUsernames = following.Select(f => _context.Users.Where(u => u.Id == f.IdFollowed).OrderBy(u => f.AllowDate).FirstOrDefault()?.UserName).ToList();
 
             return Ok(followingUsernames);
         }

@@ -1,7 +1,7 @@
 @failure_api_HostAddress = http://localhost:5082
 
 ### Follow a user
-POST {{failure_api_HostAddress}}/api/follow/follow/testuser2
+POST {{failure_api_HostAddress}}/api/follow/follow/bottas77
 
 ### Unfollow a user
 DELETE {{failure_api_HostAddress}}/api/follow/unfollow/bottas77
@@ -16,10 +16,10 @@ PATCH {{failure_api_HostAddress}}/api/follow/disallow/bottas77
 PATCH {{failure_api_HostAddress}}/api/follow/deny/bottas77
 
 ### Get followers
-GET {{failure_api_HostAddress}}/api/follow/followers
+GET {{failure_api_HostAddress}}/api/follow/followers/testuser2
 
 ### Get following
-GET {{failure_api_HostAddress}}/api/follow/following
+GET {{failure_api_HostAddress}}/api/follow/following/bottas77
 
 ### Get follow requests
 GET {{failure_api_HostAddress}}/api/follow/requests
