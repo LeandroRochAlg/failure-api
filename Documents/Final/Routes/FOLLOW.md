@@ -19,7 +19,7 @@ POST /api/follow/follow/testuser2
 200 OK
 ```
 
-#### `DELETE /api/follow/unfollow/{username}`
+#### `PATCH /api/follow/unfollow/{username}`
 - **Description:** Unfollows a user.
 - **Parameters:**
   - `username` (string, required): The username of the user to unfollow.
@@ -29,7 +29,7 @@ POST /api/follow/follow/testuser2
 
 **Example:**
 ```http
-DELETE /api/follow/unfollow/bottas77
+PATCH /api/follow/unfollow/bottas77
 ```
 
 **Response:**
@@ -94,15 +94,18 @@ PATCH /api/follow/deny/bottas77
 200 OK
 ```
 
-#### `GET /api/follow/followers`
-- **Description:** Retrieves the list of followers.
+#### `GET /api/follow/followers/{username}`
+- **Description:** Retrieves the list of followers for a specific user.
+- **Parameters:**
+  - `username` (string, required): The username of the user whose followers are to be retrieved.
 - **Response:**
   - **200 OK:** Returns a list of followers.
   - **404 Not Found:** User not found or inactive.
+  - **400 Bad Request:** User is private, and the requester does not have access.
 
 **Example:**
 ```http
-GET /api/follow/followers
+GET /api/follow/followers/testuser1
 ```
 
 **Response:**
@@ -114,15 +117,18 @@ GET /api/follow/followers
 ]
 ```
 
-#### `GET /api/follow/following`
-- **Description:** Retrieves the list of users the authenticated user is following.
+#### `GET /api/follow/following/{username}`
+- **Description:** Retrieves the list of users the specified user is following.
+- **Parameters:**
+  - `username` (string, required): The username of the user whose following list is to be retrieved.
 - **Response:**
   - **200 OK:** Returns a list of following users.
   - **404 Not Found:** User not found or inactive.
+  - **400 Bad Request:** User is private, and the requester does not have access.
 
 **Example:**
 ```http
-GET /api/follow/following
+GET /api/follow/following/testuser1
 ```
 
 **Response:**
@@ -156,16 +162,16 @@ GET /api/follow/requests
 
 ### Summary of Endpoints
 
-| HTTP Method | Route                               | Description                         |
-|-------------|-------------------------------------|-------------------------------------|
-| `POST`      | `/api/follow/follow/{username}`     | Follows a user                      |
-| `DELETE`    | `/api/follow/unfollow/{username}`   | Unfollows a user                    |
-| `PATCH`     | `/api/follow/allow/{username}`      | Allows a follow request             |
-| `PATCH`     | `/api/follow/disallow/{username}`   | Disallows a follow request          |
-| `PATCH`     | `/api/follow/deny/{username}`       | Denies a follow request             |
-| `GET`       | `/api/follow/followers`             | Retrieves the list of followers     |
-| `GET`       | `/api/follow/following`             | Retrieves the list of following     |
-| `GET`       | `/api/follow/requests`              | Retrieves the list of follow requests |
+| HTTP Method | Route                               | Description                               |
+|-------------|-------------------------------------|-------------------------------------------|
+| `POST`      | `/api/follow/follow/{username}`     | Follows a user                            |
+| `PATCH`     | `/api/follow/unfollow/{username}`   | Unfollows a user                          |
+| `PATCH`     | `/api/follow/allow/{username}`      | Allows a follow request                   |
+| `PATCH`     | `/api/follow/disallow/{username}`   | Disallows a follow request                |
+| `PATCH`     | `/api/follow/deny/{username}`       | Denies a follow request                   |
+| `GET`       | `/api/follow/followers/{username}`  | Retrieves the list of followers           |
+| `GET`       | `/api/follow/following/{username}`  | Retrieves the list of following users     |
+| `GET`       | `/api/follow/requests`              | Retrieves the list of follow requests     |
 
 ### Additional Notes
 - **Authentication:** All routes require authentication and can only be accessed by authenticated users.
