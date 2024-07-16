@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using failure_api.Data;
 using failure_api.Models;
+using failure_api.Services;
 using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,9 @@ builder.Services.AddCors(options => {
             .AllowAnyHeader()
             .AllowCredentials());
 });
+
+// Add application services.
+builder.Services.AddScoped<IBadgeService, BadgeService>();
 
 var app = builder.Build();
 

@@ -5,16 +5,18 @@ using failure_api.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using failure_api.Data;
+using failure_api.Services;
 
 namespace failure_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FollowController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context) : ControllerBase
+    public class FollowController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context, IBadgeService badgeService) : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private readonly ApplicationDbContext _context = context;
+        private readonly IBadgeService _badgeService = badgeService;
 
         [Authorize]
         [HttpPost("follow/{username}")]
@@ -71,6 +73,8 @@ namespace failure_api.Controllers
                 return Ok("Follow request sent.");
             }
 
+            await _badgeService.UpdateBadgeFollowAsync(user, followed);
+
             return Ok("User followed successfully.");
         }
 
@@ -103,6 +107,8 @@ namespace failure_api.Controllers
 
             _context.Follows.Update(follow);
             await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateBadgeUnfollowAsync(user, followed);
 
             return Ok("User unfollowed successfully.");
         }
@@ -143,6 +149,8 @@ namespace failure_api.Controllers
             _context.Follows.Update(follow);
             await _context.SaveChangesAsync();
 
+            await _badgeService.UpdateBadgeFollowAsync(following, user);
+
             return Ok("User allowed successfully.");
         }
 
@@ -181,6 +189,8 @@ namespace failure_api.Controllers
 
             _context.Follows.Update(follow);
             await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateBadgeUnfollowAsync(following, user);
 
             return Ok("User disallowed successfully.");
         }
