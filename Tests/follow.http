@@ -4,7 +4,7 @@
 POST {{failure_api_HostAddress}}/api/follow/follow/bottas77
 
 ### Unfollow a user
-DELETE {{failure_api_HostAddress}}/api/follow/unfollow/bottas77
+PATCH {{failure_api_HostAddress}}/api/follow/unfollow/bottas77
 
 ### Allow a follow request
 PATCH {{failure_api_HostAddress}}/api/follow/allow/bottas77

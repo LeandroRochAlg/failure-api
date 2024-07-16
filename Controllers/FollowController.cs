@@ -75,7 +75,7 @@ namespace failure_api.Controllers
         }
 
         [Authorize]
-        [HttpDelete("unfollow/{username}")]
+        [HttpPatch("unfollow/{username}")]
         public async Task<IActionResult> Unfollow(string username)
         {
             var user = await _userManager.GetUserAsync(User);
