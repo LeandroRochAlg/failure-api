@@ -2,15 +2,12 @@
 
 ### Follow a user
 POST {{failure_api_HostAddress}}/api/follow/follow/testuser2
-Content-Type: application/json
 
 ### Unfollow a user
 DELETE {{failure_api_HostAddress}}/api/follow/unfollow/bottas77
-Content-Type: application/json
 
 ### Allow a follow request
 PATCH {{failure_api_HostAddress}}/api/follow/allow/bottas77
-Content-Type: application/json
 
 ### Disallow a follow request
 PATCH {{failure_api_HostAddress}}/api/follow/disallow/bottas77
