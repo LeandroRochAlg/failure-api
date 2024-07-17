@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using failure_api.Models;
 using System.Threading.Tasks;
 using System.Linq;
+using failure_api.Models;
 using failure_api.Data;
 using failure_api.Services;
 
