@@ -1,0 +1,15 @@
+@failure_api_HostAddress = http://localhost:5082
+
+### Register job application
+POST {{failure_api_HostAddress}}/api/jobApplication/register
+Content-Type: application/json
+
+{
+    "appliedOn": "LinkedIn",
+    "role": "Full-Stack Developer",
+    "company": "Spotify",
+    "description": "Trying to get a job at Spotify"
+}
+
+### Get job applications
+GET {{failure_api_HostAddress}}/api/jobApplication/list/testuser2

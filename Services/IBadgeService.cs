@@ -6,5 +6,6 @@ namespace failure_api.Services
     {
         Task UpdateBadgeFollowAsync(ApplicationUser follower, ApplicationUser followed);
         Task UpdateBadgeUnfollowAsync(ApplicationUser follower, ApplicationUser followed);
+        Task UpdateXpJobApplicationAsync(ApplicationUser user);
     }
 }
