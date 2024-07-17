@@ -6,6 +6,7 @@ using System.Linq;
 using failure_api.Models;
 using failure_api.Data;
 using failure_api.Services;
+using failure_api.Filters;
 
 namespace failure_api.Controllers
 {
@@ -235,6 +236,7 @@ namespace failure_api.Controllers
 
         [Authorize]
         [HttpGet("followers/{username}")]
+        [ServiceFilter(typeof(PrivateProfileFilter))]
         public async Task<IActionResult> GetFollowers(string username)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -251,11 +253,6 @@ namespace failure_api.Controllers
                 return NotFound("User not found or inactive.");
             }
 
-            if (userToGet.Private && !_context.Follows.Where(f => f.IdFollowing == user.Id && f.IdFollowed == userToGet.Id && f.Active && f.Allowed).Any() && user.Id != userToGet.Id)
-            {
-                return BadRequest("User is private.");
-            }
-
             var followers = _context.Follows.Where(f => f.IdFollowed == userToGet.Id && f.Active && f.Allowed).ToList();
 
             // Get the usernames of the followers using the Ids
@@ -266,6 +263,7 @@ namespace failure_api.Controllers
 
         [Authorize]
         [HttpGet("following/{username}")]
+        [ServiceFilter(typeof(PrivateProfileFilter))]
         public async Task<IActionResult> GetFollowing(string username)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -280,11 +278,6 @@ namespace failure_api.Controllers
             if (userToGet == null || !userToGet.Active)
             {
                 return NotFound("User not found or inactive.");
-            }
-
-            if (userToGet.Private && !_context.Follows.Where(f => f.IdFollowing == user.Id && f.IdFollowed == userToGet.Id && f.Active && f.Allowed).Any() && user.Id != userToGet.Id)
-            {
-                return BadRequest("User is private.");
             }
 
             var following = _context.Follows.Where(f => f.IdFollowing == userToGet.Id && f.Active && f.Allowed).ToList();

@@ -6,6 +6,7 @@ using System.Linq;
 using failure_api.Models;
 using failure_api.Data;
 using failure_api.Services;
+using failure_api.Filters;
 
 namespace failure_api.Controllers
 {
@@ -40,6 +41,7 @@ namespace failure_api.Controllers
         }
 
         [HttpGet("list/{username}")]
+        [ServiceFilter(typeof(PrivateProfileFilter))]
         public async Task<IActionResult> ListJobApplications(string username)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -54,17 +56,6 @@ namespace failure_api.Controllers
             if (userToGet == null || !userToGet.Active)
             {
                 return NotFound("User not found or inactive.");
-            }
-
-            if (user.UserName != username)
-            {
-                if (userToGet.Private)
-                {
-                    if (!_context.Follows.Where(f => f.IdFollowing == user.Id && f.IdFollowed == userToGet.Id && f.Active && f.Allowed).Any())
-                    {
-                        return Unauthorized("User is private.");
-                    }
-                }
             }
 
             var jobApplications = _context.JobApplications.Where(j => j.UserId == userToGet.Id && j.Active).ToList();

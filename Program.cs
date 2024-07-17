@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using failure_api.Data;
 using failure_api.Models;
 using failure_api.Services;
+using failure_api.Filters;
 using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,7 @@ builder.Services.AddCors(options => {
 
 // Add application services.
 builder.Services.AddScoped<IBadgeService, BadgeService>();
+builder.Services.AddScoped<PrivateProfileFilter>();
 
 var app = builder.Build();
 
