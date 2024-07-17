@@ -14,6 +14,8 @@ namespace failure_api.Data
 
         public DbSet<Follow> Follows { get; set; }
 
+        public DbSet<JobApplication> JobApplications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -69,6 +71,11 @@ namespace failure_api.Data
                     .WithMany()
                     .HasForeignKey(e => e.IdFollowing)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<JobApplication>(entity =>
+            {
+                entity.ToTable("JobApplications");
             });
         }
     }
