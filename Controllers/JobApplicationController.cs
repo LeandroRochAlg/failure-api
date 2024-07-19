@@ -60,7 +60,7 @@ namespace failure_api.Controllers
 
             // Returns the job applications of the user and a list of steps of each application
             var jobApplications = _context.JobApplications
-                .Where(j => j.UserId == userToGet.Id)
+                .Where(j => j.UserId == userToGet.Id && j.Active)
                 .Select(j => new
                 {
                     JobApplication = j,
@@ -73,6 +73,88 @@ namespace failure_api.Controllers
                 .ToList();
 
             return Ok(jobApplications);
+        }
+
+        [HttpPatch("delete/{id}")]
+        public async Task<IActionResult> UnactiveJobApplication(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == id && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            // Delete all steps of the application
+            var steps = _context.ApplicationSteps.Where(s => s.JobApplicationId == jobApplication.Id && s.Active).ToList();
+
+            foreach (var step in steps)
+            {
+                step.Active = false;
+
+                await _badgeService.UpdateXpApplicationStepDeletedAsync(user);
+            }
+
+            if (jobApplication.GotIt)
+            {
+                await _badgeService.UpdateXpGotJobDeletedAsync(user, steps.Count, true);
+            } else if (jobApplication.GotIt == false)
+            {
+                await _badgeService.UpdateXpGotJobDeletedAsync(user, steps.Count, false);
+            }
+
+            jobApplication.Active = false;
+
+            await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateXpJobApplicationDeletedAsync(user);
+
+            return Ok("Job application deleted.");
+        }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateJobApplication(int id, JobApplication jobApplication)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplicationToUpdate = _context.JobApplications.FirstOrDefault(j => j.Id == id && j.UserId == user.Id);
+
+            if (jobApplicationToUpdate == null)
+            {
+                return NotFound("Job application not found.");
+            }
+            
+            jobApplicationToUpdate.Company = jobApplication.Company;
+            jobApplicationToUpdate.ApplyDate = jobApplication.ApplyDate.ToUniversalTime();
+            jobApplicationToUpdate.Description = jobApplication.Description;
+            jobApplicationToUpdate.Active = jobApplication.Active;
+
+            var firstStep = _context.ApplicationSteps.FirstOrDefault(s => s.Id == jobApplicationToUpdate.FirstStepId);
+            
+            if (firstStep != null)
+            {
+                if (jobApplication.ApplyDate < firstStep.StepDate)
+                {
+                    return BadRequest("Application date cannot be before the first step date.");
+                }
+            }
+
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Job application updated.");
         }
 
         [HttpPost("applicationStep")]
@@ -94,13 +176,13 @@ namespace failure_api.Controllers
 
             jobApplicationStep.StepDate = jobApplicationStep.StepDate.ToUniversalTime();
 
-            _context.ApplicationSteps.Add(jobApplicationStep);
-            await _context.SaveChangesAsync();
-
             if (jobApplicationStep.StepDate < jobApplication.ApplyDate)
             {
                 return BadRequest("Step date cannot be before the application date.");
             }
+
+            _context.ApplicationSteps.Add(jobApplicationStep);
+            await _context.SaveChangesAsync();
 
             // Find the last step of the application
             if (jobApplication.FirstStepId == null)
@@ -110,10 +192,18 @@ namespace failure_api.Controllers
             else
             {
                 var step = _context.ApplicationSteps.FirstOrDefault(s => s.Id == jobApplication.FirstStepId);
+
                 while (step!.NextStepId != null)
                 {
                     step = _context.ApplicationSteps.FirstOrDefault(s => s.Id == step.NextStepId);
                 }
+
+                if (!step.Progressed)
+                {
+                    step.ResultDate = jobApplicationStep.StepDate;
+                    step.Progressed = true;
+                }
+
                 step.NextStepId = jobApplicationStep.Id;
             }
 
@@ -122,6 +212,168 @@ namespace failure_api.Controllers
             await _badgeService.UpdateXpApplicationStepAsync(user);
 
             return Ok("Application step registered.");
+        }
+
+        [HttpPut("applicationStep/progressed/{id}/{date}")]
+        public async Task<IActionResult> ProgressApplicationStep(int id, string date)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplicationStep = _context.ApplicationSteps.FirstOrDefault(s => s.Id == id);
+
+            if (jobApplicationStep == null)
+            {
+                return NotFound("Application step not found.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == jobApplicationStep.JobApplicationId && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            DateTime dateP = DateTime.Parse(date);
+
+            if (dateP < jobApplication.ApplyDate)
+            {
+                return BadRequest("Step date cannot be before the application date.");
+            }
+
+            if (jobApplicationStep.StepDate > dateP)
+            {
+                return BadRequest("Step date cannot be before the current step date.");
+            }
+
+            jobApplicationStep.ResultDate = dateP.ToUniversalTime();
+
+            jobApplicationStep.Progressed = true;
+
+            await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateXpApplicationStepProgressedAsync(user);
+
+            if (jobApplicationStep.Final)
+            {
+                jobApplication.GotIt = true;
+                await _context.SaveChangesAsync();
+
+                await _badgeService.UpdateXpGotJobAsync(user, _context.ApplicationSteps.Count(s => s.JobApplicationId == jobApplication.Id), true);
+
+                return Ok("CONGRATULATIONS! You got the job!");
+            }
+
+            return Ok("Application step progressed.");
+        }
+
+        [HttpPut("applicationStep/failed/{id}/{date}")]
+        public async Task<IActionResult> FailApplicationStep(int id, string date)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplicationStep = _context.ApplicationSteps.FirstOrDefault(s => s.Id == id);
+
+            if (jobApplicationStep == null)
+            {
+                return NotFound("Application step not found.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == jobApplicationStep.JobApplicationId && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            DateTime dateP = DateTime.Parse(date);
+
+            if (dateP < jobApplication.ApplyDate)
+            {
+                return BadRequest("Step date cannot be before the application date.");
+            }
+
+            if (jobApplicationStep.StepDate > dateP)
+            {
+                return BadRequest("Step date cannot be before the current step date.");
+            }
+
+            jobApplicationStep.ResultDate = dateP.ToUniversalTime();
+
+            jobApplicationStep.Progressed = true;
+
+            await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateXpApplicationStepProgressedAsync(user);
+
+            if (jobApplicationStep.Final)
+            {
+                jobApplication.GotIt = false;
+                await _context.SaveChangesAsync();
+
+                await _badgeService.UpdateXpGotJobAsync(user, _context.ApplicationSteps.Count(s => s.JobApplicationId == jobApplication.Id), false);
+
+                return Ok("You did not get the job.");
+            }
+
+            return Ok("Application step failed.");
+        }
+
+        [HttpPatch("applicationStep/delete/{id}")]
+        public async Task<IActionResult> UnactiveApplicationStep(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplicationStep = _context.ApplicationSteps.FirstOrDefault(s => s.Id == id);
+
+            if (jobApplicationStep == null)
+            {
+                return NotFound("Application step not found.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == jobApplicationStep.JobApplicationId && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            // Find the last step of the application
+            if (jobApplication.FirstStepId == jobApplicationStep.Id)
+            {
+                jobApplication.FirstStepId = jobApplicationStep.NextStepId;
+            }
+            else
+            {
+                var step = _context.ApplicationSteps.FirstOrDefault(s => s.NextStepId == jobApplicationStep.Id);
+
+                if (step != null)
+                {
+                    step.NextStepId = jobApplicationStep.NextStepId;
+                }
+            }
+
+            jobApplicationStep.Active = false;
+
+            await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateXpApplicationStepDeletedAsync(user);
+
+            return Ok("Application step deleted.");
         }
     }
 }

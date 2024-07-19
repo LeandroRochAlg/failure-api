@@ -19,9 +19,32 @@ POST {{failure_api_HostAddress}}/api/jobApplication/applicationStep
 Content-Type: application/json
 
 {
-    "jobApplicationId": 1,
+    "jobApplicationId": 2,
     "title": "Interview with the HR",
     "type": "Interview",
     "description": "Interview with 3 people from the HR department",
     "stepDate": "2024-07-18"
 }
+
+### Delete job application
+PATCH {{failure_api_HostAddress}}/api/jobApplication/delete/1
+
+### Update job application
+PUT {{failure_api_HostAddress}}/api/jobApplication/update/1
+Content-Type: application/json
+
+{
+    "appliedOn": "Gupy",
+    "role": "Full-Stack Developer",
+    "company": "Spotify",
+    "description": "Updated description"
+}
+
+### Progress application step
+PUT {{failure_api_HostAddress}}/api/jobApplication/applicationStep/progressed/6/2024-07-20
+
+### Fail application step
+PUT {{failure_api_HostAddress}}/api/jobApplication/applicationStep/failed/6/2024-07-20
+
+### Delete application step
+PATCH {{failure_api_HostAddress}}/api/jobApplication/applicationStep/delete/1

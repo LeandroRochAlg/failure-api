@@ -21,13 +21,8 @@ namespace failure_api.Services
         public async Task UpdateBadgeFollowAsync(ApplicationUser follower, ApplicationUser followed)
         {
             var json = File.ReadAllText("Resources/badgeValues.json");
-            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json);
-
-            if (badgeValues == null)
-            {
-                throw new FileNotFoundException("badgeValues.json not found.");
-            }
-
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
             follower.Badge += badgeValues.FollowValue;
             followed.Badge += badgeValues.FollowedValue;
 
@@ -37,13 +32,8 @@ namespace failure_api.Services
         public async Task UpdateBadgeUnfollowAsync(ApplicationUser follower, ApplicationUser followed)
         {
             var json = File.ReadAllText("Resources/badgeValues.json");
-            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json);
-
-            if (badgeValues == null)
-            {
-                throw new FileNotFoundException("badgeValues.json not found.");
-            }
-
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
             follower.Badge -= badgeValues.FollowValue;
             followed.Badge -= badgeValues.FollowedValue;
 
@@ -53,14 +43,19 @@ namespace failure_api.Services
         public async Task UpdateXpJobApplicationAsync(ApplicationUser user)
         {
             var json = File.ReadAllText("Resources/badgeValues.json");
-            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json);
-
-            if (badgeValues == null)
-            {
-                throw new FileNotFoundException("badgeValues.json not found.");
-            }
-
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
             user.Experience += badgeValues.JobApplicationValue;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateXpJobApplicationDeletedAsync(ApplicationUser user)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            user.Experience -= badgeValues.JobApplicationValue;
 
             await _context.SaveChangesAsync();
         }
@@ -68,14 +63,63 @@ namespace failure_api.Services
         public async Task UpdateXpApplicationStepAsync(ApplicationUser user)
         {
             var json = File.ReadAllText("Resources/badgeValues.json");
-            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json);
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            user.Experience += badgeValues.ApplicationStepValue;
 
-            if (badgeValues == null)
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateXpApplicationStepDeletedAsync(ApplicationUser user)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            user.Experience -= badgeValues.ApplicationStepValue;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateXpApplicationStepProgressedAsync(ApplicationUser user)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            user.Experience += badgeValues.ApplicationStepProgressedValue;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateXpGotJobAsync(ApplicationUser user, int numSteps, bool GotIt)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            if (GotIt)
             {
-                throw new FileNotFoundException("badgeValues.json not found.");
+                user.Experience += (int)(badgeValues.GotJobMultiplier * numSteps) + badgeValues.GotJobValue;
+            }
+            else
+            {
+                user.Experience += (int)(badgeValues.DidNotGetJobMultiplier * numSteps) + badgeValues.DidNotGetJobValue;
             }
 
-            user.Experience += badgeValues.ApplicationStepValue;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateXpGotJobDeletedAsync(ApplicationUser user, int numSteps, bool GotIt)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            if (GotIt)
+            {
+                user.Experience -= (int)(badgeValues.GotJobMultiplier * numSteps) + badgeValues.GotJobValue;
+            }
+            else
+            {
+                user.Experience -= (int)(badgeValues.DidNotGetJobMultiplier * numSteps) + badgeValues.DidNotGetJobValue;
+            }
 
             await _context.SaveChangesAsync();
         }

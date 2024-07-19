@@ -2,5 +2,10 @@
     "followValue": 10,
     "followedValue": 7,
     "jobApplicationValue": 100,
-    "applicationStepValue": 50
+    "applicationStepValue": 50,
+    "applicationStepProgressedValue": 25,
+    "gotJobValue": 750,
+    "didNotGetJobValue": 950,
+    "gotJobMultiplier": 1.5,
+    "didNotGetJobMultiplier": 2.5
 }
