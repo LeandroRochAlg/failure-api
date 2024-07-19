@@ -40,6 +40,9 @@ Content-Type: application/json
     "description": "Updated description"
 }
 
+### Success application
+PUT http://localhost:5082/api/jobApplication/success/1
+
 ### Progress application step
 PUT {{failure_api_HostAddress}}/api/jobApplication/applicationStep/progressed/6/2024-07-20
 
@@ -48,3 +51,6 @@ PUT {{failure_api_HostAddress}}/api/jobApplication/applicationStep/failed/6/2024
 
 ### Delete application step
 PATCH {{failure_api_HostAddress}}/api/jobApplication/applicationStep/delete/1
+
+### Set final application step
+PATCH http://localhost:5082/api/jobApplication/applicationStep/final/1

@@ -13,10 +13,9 @@ namespace failure_api.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class JobApplicationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext context, IBadgeService badgeService) : ControllerBase
+    public class JobApplicationController(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IBadgeService badgeService) : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
         private readonly ApplicationDbContext _context = context;
         private readonly IBadgeService _badgeService = badgeService;
 
@@ -155,6 +154,42 @@ namespace failure_api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Job application updated.");
+        }
+
+        [HttpPut("success/{id}")]
+        public async Task<IActionResult> SuccessJobApplication(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == id && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            // Set the last step as successful
+            var step = _context.ApplicationSteps.FirstOrDefault(s => s.JobApplicationId == jobApplication.Id && s.NextStepId == null);
+
+            if (step == null)
+            {
+                return NotFound("Last step not found.");
+            }
+
+            step.Final = true;
+
+            jobApplication.GotIt = true;
+
+            await _context.SaveChangesAsync();
+
+            await _badgeService.UpdateXpGotJobAsync(user, _context.ApplicationSteps.Count(s => s.JobApplicationId == jobApplication.Id), true);
+
+            return Ok("Job application set as successful.");
         }
 
         [HttpPost("applicationStep")]
@@ -374,6 +409,37 @@ namespace failure_api.Controllers
             await _badgeService.UpdateXpApplicationStepDeletedAsync(user);
 
             return Ok("Application step deleted.");
+        }
+
+        [HttpPatch("applicationStep/final/{id}")]
+        public async Task<IActionResult> SetFinalApplicationStep(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null || !user.Active)
+            {
+                return NotFound("User not found or inactive.");
+            }
+
+            var jobApplicationStep = _context.ApplicationSteps.FirstOrDefault(s => s.Id == id);
+
+            if (jobApplicationStep == null)
+            {
+                return NotFound("Application step not found.");
+            }
+
+            var jobApplication = _context.JobApplications.FirstOrDefault(j => j.Id == jobApplicationStep.JobApplicationId && j.UserId == user.Id);
+
+            if (jobApplication == null)
+            {
+                return NotFound("Job application not found.");
+            }
+
+            jobApplicationStep.Final = true;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Application step set as final.");
         }
     }
 }
