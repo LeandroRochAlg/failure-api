@@ -8,7 +8,7 @@ namespace failure_api.Models
         public int Id { get; set; }
 
         [Required]
-        [RegularExpression("^(Like|Congrats|Love|Hate|Neutral|Haha|Good Luck)$", ErrorMessage = "Invalid Type. Please provide a valid reaction type.")]
+        [RegularExpression("^(Like|Congrats|Love|Hate|Neutral|Haha|Good Luck|Sad)$", ErrorMessage = "Invalid Type. Please provide a valid reaction type.")]
         public string ReactionName { get; set; } = "";
 
         [Required]
