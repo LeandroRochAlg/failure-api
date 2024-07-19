@@ -31,6 +31,8 @@ namespace failure_api.Controllers
 
             jobApplication.UserId = user.Id;
 
+            jobApplication.ApplyDate = jobApplication.ApplyDate.ToUniversalTime();
+
             _context.JobApplications.Add(jobApplication);
             await _context.SaveChangesAsync();
 
@@ -330,7 +332,7 @@ namespace failure_api.Controllers
                 return NotFound("Job application not found.");
             }
 
-            DateTime dateP = DateTime.Parse(date);
+            DateTime dateP = DateTime.Parse(date).ToUniversalTime();
 
             if (dateP < jobApplication.ApplyDate)
             {
