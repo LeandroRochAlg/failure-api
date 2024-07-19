@@ -52,7 +52,7 @@ namespace failure_api.Controllers
                 return NotFound("Job Application not found.");
             }
 
-            var existingReaction = _context.Reactions.FirstOrDefault(r => r.UserId == user.Id && r.ReactionType == reaction.ReactionType && r.JobApplicationId == reaction.JobApplicationId && r.ApplicationStepId == reaction.ApplicationStepId && r.Active);
+            var existingReaction = _context.Reactions.FirstOrDefault(r => r.UserId == user.Id && r.JobApplicationId == reaction.JobApplicationId && r.ApplicationStepId == reaction.ApplicationStepId && r.Active);
 
             if (existingReaction != null)
             {
@@ -115,7 +115,7 @@ namespace failure_api.Controllers
                 return NotFound("Job Application not found.");
             }
 
-            var existingReaction = _context.Reactions.FirstOrDefault(r => r.UserId == user.Id && r.ReactionType == reaction.ReactionType && r.JobApplicationId == reaction.JobApplicationId && r.ApplicationStepId == reaction.ApplicationStepId && r.Active);
+            var existingReaction = _context.Reactions.FirstOrDefault(r => r.UserId == user.Id && r.JobApplicationId == reaction.JobApplicationId && r.ApplicationStepId == reaction.ApplicationStepId && r.Active);
 
             if (existingReaction == null)
             {
