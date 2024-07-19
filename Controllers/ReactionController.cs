@@ -6,7 +6,6 @@ using System.Linq;
 using failure_api.Models;
 using failure_api.Data;
 using failure_api.Services;
-using failure_api.Filters;
 
 namespace failure_api.Controllers
 {
