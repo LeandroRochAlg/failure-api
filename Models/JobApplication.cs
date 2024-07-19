@@ -25,7 +25,7 @@ namespace failure_api.Models
 
         public int? FirstStepId { get; set; }
 
-        public bool GotIt { get; set; } = false;
+        public bool GotIt { get; set; }
 
         public bool Active { get; set; } = true;
     }
