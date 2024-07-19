@@ -18,6 +18,8 @@ namespace failure_api.Data
 
         public DbSet<ApplicationStep> ApplicationSteps { get; set; }
 
+        public DbSet<Reaction> Reactions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -107,6 +109,30 @@ namespace failure_api.Data
                 entity.HasOne<ApplicationStep>()
                       .WithMany()
                       .HasForeignKey(e => e.NextStepId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<Reaction>(entity =>
+            {
+                entity.ToTable("Reactions");
+                entity.HasIndex(e => new { e.ReactionName, e.ReactionType, e.JobApplicationId, e.ApplicationStepId, e.UserId }).IsUnique();
+
+                // Setting up the relationship between ApplicationUser and Reaction
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Setting up the relationship between JobApplication and Reaction
+                entity.HasOne<JobApplication>()
+                      .WithMany()
+                      .HasForeignKey(e => e.JobApplicationId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Setting up the relationship between ApplicationStep and Reaction
+                entity.HasOne<ApplicationStep>()
+                      .WithMany()
+                      .HasForeignKey(e => e.ApplicationStepId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }
