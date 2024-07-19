@@ -64,5 +64,20 @@ namespace failure_api.Services
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateXpApplicationStepAsync(ApplicationUser user)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json);
+
+            if (badgeValues == null)
+            {
+                throw new FileNotFoundException("badgeValues.json not found.");
+            }
+
+            user.Experience += badgeValues.ApplicationStepValue;
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

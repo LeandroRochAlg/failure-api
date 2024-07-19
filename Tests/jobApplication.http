@@ -13,3 +13,15 @@ Content-Type: application/json
 
 ### Get job applications
 GET {{failure_api_HostAddress}}/api/jobApplication/list/testuser2
+
+### Register application step
+POST {{failure_api_HostAddress}}/api/jobApplication/applicationStep
+Content-Type: application/json
+
+{
+    "jobApplicationId": 1,
+    "title": "Interview with the HR",
+    "type": "Interview",
+    "description": "Interview with 3 people from the HR department",
+    "stepDate": "2024-07-18"
+}

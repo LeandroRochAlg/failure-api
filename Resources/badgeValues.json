@@ -1,5 +1,6 @@
 {
     "followValue": 10,
     "followedValue": 7,
-    "jobApplicationValue": 100
+    "jobApplicationValue": 100,
+    "applicationStepValue": 50
 }
