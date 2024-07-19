@@ -16,5 +16,6 @@ Content-Type: application/json
 
 {
     "ReactionType": "Job",
-    "JobApplicationId": 1
+    "JobApplicationId": 1,
+    "ReactionName": "Like"
 }

@@ -7,9 +7,10 @@
     - `ReactionType` (string): Type of reaction ("Job" or other).
     - `JobApplicationId` (int): ID of the job application (if applicable).
     - `ApplicationStepId` (int): ID of the application step (if applicable).
-    - `ReactionName` (string): Name of the reaction.
+    - `ReactionName` (string): Name of the reaction, must be one of "Like", "Congrats", "Love", "Hate", "Neutral", "Haha", "Good Luck".
 - **Response:**
   - **200 OK:** Reaction added or updated successfully.
+  - **400 Bad Request:** Invalid reaction name or both `JobApplicationId` and `ApplicationStepId` provided or missing.
   - **401 Unauthorized:** User not found or inactive.
   - **404 Not Found:** Job Application or Application Step not found.
 
@@ -21,7 +22,7 @@ Content-Type: application/json
 {
     "ReactionType": "Job",
     "JobApplicationId": 1,
-    "ReactionName": "Liked"
+    "ReactionName": "Like"
 }
 ```
 
@@ -39,6 +40,7 @@ Content-Type: application/json
     - `ApplicationStepId` (int): ID of the application step (if applicable).
 - **Response:**
   - **200 OK:** Reaction deleted successfully.
+  - **400 Bad Request:** Both `JobApplicationId` and `ApplicationStepId` provided or missing.
   - **401 Unauthorized:** User not found or inactive.
   - **404 Not Found:** Job Application, Application Step, or Reaction not found.
 
@@ -50,7 +52,7 @@ Content-Type: application/json
 {
     "ReactionType": "Job",
     "JobApplicationId": 1,
-    "ApplicationStepId": 2
+    "ReactionName": "Like"
 }
 ```
 
@@ -68,4 +70,4 @@ Content-Type: application/json
 
 ### Additional Notes
 - **Authentication:** All routes require authentication and can only be accessed by authenticated users.
-- **Input Validation:** Ensure proper validation of input data for all endpoints.
+- **Input Validation:** Ensure proper validation of input data for all endpoints, particularly for `ReactionName` and exclusive usage of `JobApplicationId` or `ApplicationStepId`.
