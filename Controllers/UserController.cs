@@ -93,7 +93,7 @@ namespace failure_api.Controllers
 
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok("Private status updated.");
             }
 
             return BadRequest(result.Errors);
@@ -123,7 +123,7 @@ namespace failure_api.Controllers
 
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok("Active status updated.");
             }
 
             return BadRequest(result.Errors);
@@ -155,7 +155,7 @@ namespace failure_api.Controllers
                     return Ok("Logged out.");
                 }
 
-                return Ok();
+                return Ok("Password changed.");
             }
 
             return BadRequest(result.Errors);
@@ -178,7 +178,7 @@ namespace failure_api.Controllers
 
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok("Username changed.");
             }
 
             return BadRequest(result.Errors);
