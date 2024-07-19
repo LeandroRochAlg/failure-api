@@ -1,6 +1,8 @@
 {
     "followValue": 10,
     "followedValue": 7,
+    "reactionValue": 5,
+    "reactionReceivedValue": 3,
     "jobApplicationValue": 100,
     "applicationStepValue": 50,
     "applicationStepProgressedValue": 25,

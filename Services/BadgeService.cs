@@ -40,6 +40,28 @@ namespace failure_api.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateBadgeReactionAsync(ApplicationUser reacter, ApplicationUser reacted)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            reacter.Badge += badgeValues.ReactionValue;
+            reacted.Badge += badgeValues.ReactionReceivedValue;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task updateBadgeReactionDeletedAsync(ApplicationUser reacter, ApplicationUser reacted)
+        {
+            var json = File.ReadAllText("Resources/badgeValues.json");
+            var badgeValues = JsonConvert.DeserializeObject<BadgeValuesModel>(json) ?? throw new FileNotFoundException("badgeValues.json not found.");
+            
+            reacter.Badge -= badgeValues.ReactionValue;
+            reacted.Badge -= badgeValues.ReactionReceivedValue;
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task UpdateXpJobApplicationAsync(ApplicationUser user)
         {
             var json = File.ReadAllText("Resources/badgeValues.json");
