@@ -4,6 +4,8 @@ using failure_api.Models;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Google.Apis.Auth;
+using DotNetEnv;
 
 namespace failure_api.Controllers
 {    
@@ -26,11 +28,7 @@ namespace failure_api.Controllers
             var user = new ApplicationUser
             {
                 UserName = model.Username,
-                IdGoogle = model.IdGoogle,
-                Description = model.Description,
-                Link1 = model.Link1,
-                Link2 = model.Link2,
-                Link3 = model.Link3
+                IdGoogle = model.IdGoogle
             };
 
             try {
@@ -38,6 +36,36 @@ namespace failure_api.Controllers
 
                 if (result.Succeeded)
                 {
+                    var userCreated = await _userManager.FindByNameAsync(model.Username);
+
+                    if (userCreated == null)
+                    {
+                        return NotFound("Internal server error. User not found after creation.");
+                    }
+
+                    userCreated.Email = model.Email;
+                    userCreated.EmailConfirmed = true;
+
+                    if (model.TokenGoogle != null)
+                    {
+                        // Validate the Google token
+                        // var payload = await GoogleJsonWebSignature.ValidateAsync(model.TokenGoogle);
+
+                        // if (payload == null)
+                        // {
+                        //     return BadRequest("Invalid Google token.");
+                        // }
+
+                        var info = new UserLoginInfo("Google", userCreated.IdGoogle, "Google");
+
+                        var resultGoogle = await _userManager.AddLoginAsync(userCreated, info);
+
+                        if (!resultGoogle.Succeeded)
+                        {
+                            return BadRequest("Error linking Google account to user.");
+                        }
+                    }
+
                     return Ok();
                 }
 
@@ -51,8 +79,9 @@ namespace failure_api.Controllers
                         } else if (error.Description == "DuplicateIdGoogle")   // If a user with the same Google ID already exists
                         {
                             return Conflict("This Google account is already linked to another user.");
-                        } else {
-                            return BadRequest(error.Description);       // Returns the text description of the error
+                        } else
+                        {
+                            return BadRequest("Internal Server Error");
                         }
                     }
                 }
@@ -101,6 +130,35 @@ namespace failure_api.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok();
+        }
+
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginModel model)
+        {
+            try
+            {
+                // var payload = await GoogleJsonWebSignature.ValidateAsync(model.TokenGoogle);
+
+                // if (payload == null)
+                // {
+                //     return BadRequest("Invalid Google token.");
+                // }
+
+                var user = await _userManager.FindByLoginAsync("Google", model.IdGoogle);
+
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                await _signInManager.SignInAsync(user, true);
+
+                return Ok();
+            }
+            catch (InvalidJwtException)
+            {
+                return BadRequest("Invalid Google token.");
+            }
         }
     }
 }
