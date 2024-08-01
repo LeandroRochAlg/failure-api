@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using failure_api.Models;
+using failure_api.Services;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -25,10 +26,12 @@ namespace failure_api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationModel model)
         {
+            string hashedGoogleId = new HashService().HashGoogleId(model.IdGoogle);
+
             var user = new ApplicationUser
             {
                 UserName = model.Username,
-                IdGoogle = model.IdGoogle
+                IdGoogle = hashedGoogleId
             };
 
             try {
@@ -144,7 +147,9 @@ namespace failure_api.Controllers
                 //     return BadRequest("Invalid Google token.");
                 // }
 
-                var user = await _userManager.FindByLoginAsync("Google", model.IdGoogle);
+                string hashedGoogleId = new HashService().HashGoogleId(model.IdGoogle);
+
+                var user = await _userManager.FindByLoginAsync("Google", hashedGoogleId);
 
                 if (user == null)
                 {
