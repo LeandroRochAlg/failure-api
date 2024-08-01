@@ -156,7 +156,7 @@ namespace failure_api.Controllers
                     return NotFound("User not found.");
                 }
 
-                await _signInManager.SignInAsync(user, true);
+                await _signInManager.SignInAsync(user, false);
 
                 return Ok();
             }
