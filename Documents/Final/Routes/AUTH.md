@@ -1,6 +1,4 @@
-Here is the updated documentation for authentication:
-
-### 1. Authentication
+### Authentication
 
 #### `POST /api/auth/register`
 - **Description:** Registers a new user.
@@ -8,14 +6,13 @@ Here is the updated documentation for authentication:
   - `username` (string, required): The desired username for the new user.
   - `password` (string, required): The password for the new user.
   - `idGoogle` (string, required): The Google ID associated with the new user.
-  - `description` (string, optional): The user's description.
-  - `link1` (string, optional): The first link.
-  - `link2` (string, optional): The second link.
-  - `link3` (string, optional): The third link.
+  - `email` (string, required): The email address of the user.
+  - `tokenGoogle` (string, optional): The Google token for validating the user's Google account.
 - **Response:**
   - **200 OK:** User registered successfully.
   - **409 Conflict:** User with the same username or Google ID already exists.
   - **400 Bad Request:** Invalid data or error during registration.
+  - **404 Not Found:** Internal server error. User not found after creation.
 
 **Example:**
 ```http
@@ -25,7 +22,9 @@ Content-Type: application/json
 {
   "username": "bottas77",
   "password": "Bottas77!",
-  "idGoogle": "google-id4"
+  "idGoogle": "google-id4",
+  "email": "bottas77@example.com",
+  "tokenGoogle": "google-token"
 }
 ```
 
@@ -78,15 +77,25 @@ POST /api/auth/logout
 200 OK
 ```
 
-#### `GET /api/secure/check`
-- **Description:** Checks if the user is authenticated.
+#### `POST /api/auth/google`
+- **Description:** Logs in a user using a Google token.
+- **Request Body:**
+  - `idGoogle` (string, required): The Google ID of the user.
+  - `tokenGoogle` (string, required): The Google token for validating the user's Google account.
 - **Response:**
-  - **200 OK:** User is authenticated.
-  - **401 Unauthorized:** User is not authenticated.
+  - **200 OK:** User logged in successfully.
+  - **400 Bad Request:** Invalid Google token.
+  - **404 Not Found:** User not found.
 
 **Example:**
 ```http
-GET /api/secure/check
+POST /api/auth/google
+Content-Type: application/json
+
+{
+  "idGoogle": "google-id4",
+  "tokenGoogle": "google-token"
+}
 ```
 
 **Response:**
@@ -101,6 +110,7 @@ GET /api/secure/check
 | `POST`      | `/api/auth/register`      | Registers a new user                        |
 | `POST`      | `/api/auth/login`         | Logs in a user                              |
 | `POST`      | `/api/auth/logout`        | Logs out the current user                   |
+| `POST`      | `/api/auth/google`        | Logs in a user using a Google token         |
 | `GET`       | `/api/secure/check`       | Checks if the user is authenticated         |
 
 ### Additional Notes
