@@ -26,12 +26,15 @@ namespace failure_api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationModel model)
         {
-            string hashedGoogleId = new HashService().HashGoogleId(model.IdGoogle);
+            bool isGoogle = model.IdGoogle != "N/A" && model.TokenGoogle != "N/A";
+
+            string hashedGoogleId = isGoogle ? new HashService().HashGoogleId(model.IdGoogle) : "";
 
             var user = new ApplicationUser
             {
                 UserName = model.Username,
-                IdGoogle = hashedGoogleId
+                IdGoogle = hashedGoogleId,
+                Email = model.Email,
             };
 
             try {
@@ -46,10 +49,7 @@ namespace failure_api.Controllers
                         return NotFound("Internal server error. User not found after creation.");
                     }
 
-                    userCreated.Email = model.Email;
-                    userCreated.EmailConfirmed = true;
-
-                    if (model.TokenGoogle != null)
+                    if (isGoogle)
                     {
                         // Validate the Google token
                         // var payload = await GoogleJsonWebSignature.ValidateAsync(model.TokenGoogle);
@@ -58,6 +58,8 @@ namespace failure_api.Controllers
                         // {
                         //     return BadRequest("Invalid Google token.");
                         // }
+
+                        userCreated.EmailConfirmed = true;
 
                         var info = new UserLoginInfo("Google", userCreated.IdGoogle, "Google");
 
@@ -98,8 +100,7 @@ namespace failure_api.Controllers
                     }
                 }
 
-                // Re-throw the exception if it's not handled
-                throw;
+                return BadRequest("Internal Server Error");
             }
 
             return BadRequest();
