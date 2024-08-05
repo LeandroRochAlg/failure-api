@@ -28,7 +28,9 @@ namespace failure_api.Controllers
         {
             bool isGoogle = model.IdGoogle != "N/A" && model.TokenGoogle != "N/A";
 
-            string hashedGoogleId = isGoogle ? new HashService().HashGoogleId(model.IdGoogle) : "";
+            string uniqueIdGoogle = "N/A - " + Guid.NewGuid().ToString();   // Unique ID for users that don't use Google
+
+            string hashedGoogleId = isGoogle ? new HashService().HashGoogleId(model.IdGoogle) : uniqueIdGoogle;
 
             var user = new ApplicationUser
             {
