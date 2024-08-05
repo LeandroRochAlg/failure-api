@@ -1,11 +1,11 @@
 ### Authentication
 
 #### `POST /api/auth/register`
-- **Description:** Registers a new user.
+- **Description:** Registers a new user. Can handle both standard registration and Google-authenticated registration.
 - **Request Body:**
   - `username` (string, required): The desired username for the new user.
   - `password` (string, required): The password for the new user.
-  - `idGoogle` (string, required): The Google ID associated with the new user.
+  - `idGoogle` (string, required if using Google authentication): The Google ID associated with the new user.
   - `email` (string, required): The email address of the user.
   - `tokenGoogle` (string, optional): The Google token for validating the user's Google account.
 - **Response:**
@@ -34,7 +34,7 @@ Content-Type: application/json
 ```
 
 #### `POST /api/auth/login`
-- **Description:** Logs in a user.
+- **Description:** Logs in a user with username and password.
 - **Request Body:**
   - `username` (string, required): The username of the user.
   - `password` (string, required): The password of the user.
@@ -111,7 +111,6 @@ Content-Type: application/json
 | `POST`      | `/api/auth/login`         | Logs in a user                              |
 | `POST`      | `/api/auth/logout`        | Logs out the current user                   |
 | `POST`      | `/api/auth/google`        | Logs in a user using a Google token         |
-| `GET`       | `/api/secure/check`       | Checks if the user is authenticated         |
 
 ### Additional Notes
 - **Validation:** Ensure proper validation of input data, especially for registration and login endpoints (`POST /register` and `POST /login`).
