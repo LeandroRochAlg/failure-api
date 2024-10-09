@@ -5,20 +5,16 @@ using failure_api.Models;
 
 namespace failure_api.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : IdentityDbContext<ApplicationUser>(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
+        public DbSet<Follow> Follows { get; init; }
 
-        public DbSet<Follow> Follows { get; set; }
+        public DbSet<JobApplication> JobApplications { get; init; }
 
-        public DbSet<JobApplication> JobApplications { get; set; }
+        public DbSet<ApplicationStep> ApplicationSteps { get; init; }
 
-        public DbSet<ApplicationStep> ApplicationSteps { get; set; }
-
-        public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<Reaction> Reactions { get; init; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
