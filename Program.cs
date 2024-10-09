@@ -65,4 +65,46 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Init creating admin
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await CreateRolesAndAdminUser(userManager, roleManager);
+}
+
 app.Run();
+return;
+
+// Create admin role and user
+async Task CreateRolesAndAdminUser(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+{
+    // checks if the role exists
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));   // create the new role
+    }
+    
+    // creates new user if it doesn't exist
+    var adminUser = await userManager.FindByNameAsync(Environment.GetEnvironmentVariable("ADMIN_USERNAME") ?? "admin");
+    if (adminUser == null)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = Environment.GetEnvironmentVariable("ADMIN_USERNAME") ?? "admin",
+            Email = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@admin.com",
+            EmailConfirmed = true,
+            IdGoogle = "admin"
+        };
+        
+        var result = await userManager.CreateAsync(user, Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Admin@1234");
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "Admin");    // add the user to the role
+        }
+    }
+}
