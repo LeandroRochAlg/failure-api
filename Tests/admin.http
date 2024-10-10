@@ -1,0 +1,7 @@
+﻿@failure_api_HostAddress = http://localhost:5082
+
+### Add a user as admin
+POST {{failure_api_HostAddress}}/api/admin/addUser/testuser
+
+### Remove admin rights from a user
+POST {{failure_api_HostAddress}}/api/admin/removeUser/testuser
